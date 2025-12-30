@@ -109,10 +109,12 @@ function changeLocation() {
 // ============ Load Resolver Users ============
 async function loadResolverUsers() {
     try {
+        const container = document.getElementById('resolverChips');
+        // Skip if resolver chips container doesn't exist (removed from UI)
+        if (!container) return;
+
         const response = await fetch(`${API_URL}/api/users/by-location?location=${currentLocation}`);
         const result = await response.json();
-
-        const container = document.getElementById('resolverChips');
 
         if (result.success && result.data.length > 0) {
             // Filter out superadmin users
@@ -133,7 +135,8 @@ async function loadResolverUsers() {
         }
     } catch (error) {
         console.error('Failed to load resolver users:', error);
-        document.getElementById('resolverChips').innerHTML = '<span class="loading-text">Failed to load users</span>';
+        const container = document.getElementById('resolverChips');
+        if (container) container.innerHTML = '<span class="loading-text">Failed to load users</span>';
     }
 }
 
