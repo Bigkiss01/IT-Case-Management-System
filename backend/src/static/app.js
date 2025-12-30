@@ -359,8 +359,11 @@ function openModal(caseData = null) {
 
 function closeModal() {
     document.getElementById('caseModal').classList.remove('active');
-    document.getElementById('autoNo').checked = false;
-    document.getElementById('caseNo').readOnly = false;
+    // Only reset if elements exist (some were removed in UI update)
+    const autoNo = document.getElementById('autoNo');
+    const caseNo = document.getElementById('caseNo');
+    if (autoNo) autoNo.checked = false;
+    if (caseNo) caseNo.readOnly = false;
 }
 
 // ============ Toggle Auto No ============
