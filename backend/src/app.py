@@ -776,6 +776,18 @@ def create_case():
         
         table_name = get_case_table(location)
         
+        # Auto-generate case_no if not provided
+        case_no = data.get('case_no', '')
+        if not case_no:
+            with engine.connect() as conn:
+                result = conn.execute(text(f"SELECT MAX(case_no) as max_no FROM {table_name}"))
+                row = result.fetchone()
+                max_no = row[0] if row and row[0] else 0
+                try:
+                    case_no = int(max_no) + 1
+                except:
+                    case_no = 1
+        
         query = f"""
             INSERT INTO {table_name} 
             (case_no, case_date, issues, description, step_to_resolve, opened_by, department, status, resolved_by, remark)
@@ -784,7 +796,7 @@ def create_case():
         """
         
         params = {
-            'case_no': data.get('case_no', ''),
+            'case_no': case_no,
             'case_date': data.get('case_date') or None,
             'issues': data.get('issues', ''),
             'description': data.get('description', ''),

@@ -359,69 +359,9 @@
 
         <!-- Users Section -->
         <div id="usersSection" class="admin-section active">
-            <h2>User Management</h2>
-
-            <!-- Add User Form -->
-            <div class="add-user-form" id="addUserForm">
-                <div class="form-group">
-                    <label>Employee ID (EID)</label>
-                    <input type="text" id="newEid" placeholder="firstname.lastname" required>
-                </div>
-                <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" id="newFirstName" placeholder="First Name" required>
-                </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" id="newLastName" placeholder="Last Name" required>
-                </div>
-                <div class="form-group">
-                    <label>Position</label>
-                    <select id="newPosition" required>
-                        <option value="">-- Select Position --</option>
-                        <option value="ITM">ITM (IT Manager)</option>
-                        <option value="ITS">ITS (IT Specialist)</option>
-                        <option value="ITO">ITO (IT Officer)</option>
-                        <option value="ITO Trainee">ITO Trainee</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="newEmail" placeholder="email@hotel.com">
-                </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="newPhone" placeholder="0XX-XXX-XXXX">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="newPassword" placeholder="Strong password required"
-                        oninput="checkPasswordStrength()">
-                    <div id="passwordStrength" style="margin-top: 5px; font-size: 12px;"></div>
-                </div>
-                <div class="form-group">
-                    <label>Retype Password</label>
-                    <input type="password" id="newPasswordConfirm" placeholder="Repeat password"
-                        oninput="checkPasswordMatch()">
-                    <div id="passwordMatch" style="margin-top: 5px; font-size: 12px;"></div>
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select id="newRole">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                        <option value="superadmin">Super Admin</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Locations Access</label>
-                    <div class="locations-checkboxes" id="newLocations">
-                        <!-- Will be populated dynamically -->
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-primary" onclick="addUser()">+ Add User</button>
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">User Management</h2>
+                <button class="btn btn-primary" onclick="showAddUserModal()">+ Add New User</button>
             </div>
 
             <!-- Users Table -->
@@ -550,6 +490,81 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeEditUserModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="confirmEditUser()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <h2>Add New User</h2>
+            <div class="form-group">
+                <label>Employee ID (EID)</label>
+                <input type="text" id="newEid" placeholder="firstname.lastname" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="newFirstName" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="newLastName" placeholder="Last Name" required>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Position</label>
+                    <select id="newPosition" required>
+                        <option value="">-- Select Position --</option>
+                        <option value="ITM">ITM (IT Manager)</option>
+                        <option value="ITS">ITS (IT Specialist)</option>
+                        <option value="ITO">ITO (IT Officer)</option>
+                        <option value="ITO Trainee">ITO Trainee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="newRole">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="superadmin">Super Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="newEmail" placeholder="email@hotel.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="newPhone" placeholder="0XX-XXX-XXXX">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="newPassword" placeholder="Strong password required"
+                        oninput="checkPasswordStrength()">
+                    <div id="passwordStrength" style="margin-top: 5px; font-size: 12px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Retype Password</label>
+                    <input type="password" id="newPasswordConfirm" placeholder="Repeat password"
+                        oninput="checkPasswordMatch()">
+                    <div id="passwordMatch" style="margin-top: 5px; font-size: 12px;"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Locations Access</label>
+                <div class="locations-checkboxes" id="newLocations">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeAddUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addUser()">+ Add User</button>
             </div>
         </div>
     </div>
@@ -703,6 +718,28 @@
             }
         }
 
+        // Add User Modal functions
+        function showAddUserModal() {
+            loadLocations(); // Ensure locations are loaded for checkboxes
+            document.getElementById('addUserModal').classList.add('active');
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('active');
+            // Clear form
+            document.getElementById('newEid').value = '';
+            document.getElementById('newFirstName').value = '';
+            document.getElementById('newLastName').value = '';
+            document.getElementById('newPosition').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newPhone').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newPasswordConfirm').value = '';
+            document.getElementById('passwordStrength').innerHTML = '';
+            document.getElementById('passwordMatch').innerHTML = '';
+            document.querySelectorAll('input[name="newLocation"]').forEach(cb => cb.checked = false);
+        }
+
         async function addUser() {
             const eid = document.getElementById('newEid').value.trim();
             const firstName = document.getElementById('newFirstName').value.trim();
@@ -764,16 +801,8 @@
 
                 if (result.success) {
                     alert('User created successfully!');
+                    closeAddUserModal();
                     loadUsers();
-                    // Clear form
-                    document.getElementById('newEid').value = '';
-                    document.getElementById('newFirstName').value = '';
-                    document.getElementById('newLastName').value = '';
-                    document.getElementById('newPosition').value = '';
-                    document.getElementById('newEmail').value = '';
-                    document.getElementById('newPhone').value = '';
-                    document.getElementById('newPassword').value = '';
-                    document.querySelectorAll('input[name="newLocation"]').forEach(cb => cb.checked = false);
                 } else {
                     alert('Error: ' + result.error);
                 }

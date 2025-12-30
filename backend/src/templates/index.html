@@ -126,20 +126,15 @@
             </div>
             <form id="caseForm" onsubmit="saveCase(event)">
                 <input type="hidden" id="caseId">
+                <input type="hidden" id="caseNo">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>
-                            No.
-                            <label class="auto-checkbox">
-                                <input type="checkbox" id="autoNo" onchange="toggleAutoNo()">
-                                <span>Auto (New)</span>
-                            </label>
-                        </label>
-                        <input type="text" id="caseNo" required>
-                    </div>
                     <div class="form-group">
                         <label>Date</label>
                         <input type="date" id="caseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Reported by</label>
+                        <input type="text" id="caseOpenedBy" readonly style="background: #f5f5f5;">
                     </div>
                 </div>
                 <div class="form-row">
@@ -200,10 +195,6 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Opened by</label>
-                        <input type="text" id="caseOpenedBy">
-                    </div>
-                    <div class="form-group">
                         <label>Status</label>
                         <select id="caseStatus" required>
                             <option value="">--- Please Select ---</option>
@@ -211,21 +202,12 @@
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Resolved by</label>
-                        <div class="resolver-chips" id="resolverChips">
-                            <!-- Will be loaded dynamically from API -->
-                            <span class="loading-text">Loading users...</span>
-                        </div>
-                        <input type="hidden" id="caseResolvedBy">
-                    </div>
                     <div class="form-group">
                         <label>Remark</label>
                         <input type="text" id="caseRemark">
                     </div>
                 </div>
+                <input type="hidden" id="caseResolvedBy">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save</button>

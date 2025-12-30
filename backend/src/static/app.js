@@ -340,19 +340,15 @@ function openModal(caseData = null) {
                 }
             });
         }
-
-        // Disable auto checkbox when editing
-        document.getElementById('autoNo').checked = false;
-        document.getElementById('autoNo').disabled = true;
-        document.getElementById('caseNo').readOnly = false;
     } else {
         title.textContent = 'Add New Case';
         document.getElementById('caseId').value = '';
-
-        // Enable auto checkbox for new cases
-        document.getElementById('autoNo').disabled = false;
-        document.getElementById('autoNo').checked = false;
-        document.getElementById('caseNo').readOnly = false;
+        // Auto-set opened_by from logged-in user
+        if (currentUser) {
+            document.getElementById('caseOpenedBy').value = currentUser.position || currentUser.eid;
+        }
+        // Auto-set case_no (will be calculated on save if empty)
+        document.getElementById('caseNo').value = '';
     }
 
     modal.classList.add('active');
