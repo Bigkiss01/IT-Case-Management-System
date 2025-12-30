@@ -1016,7 +1016,7 @@ def export_excel():
 
 
 @app.route('/api/import', methods=['POST'])
-@login_required
+@admin_required
 def import_excel():
     try:
         location = request.form.get('location', 'hktmb')
