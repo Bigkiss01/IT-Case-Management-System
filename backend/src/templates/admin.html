@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - IT Case Log</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 30px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .admin-header h1 {
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .admin-tab {
+            padding: 12px 24px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .admin-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .admin-tab:hover:not(.active) {
+            background: #e0e0e0;
+        }
+
+        .admin-section {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-superadmin {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .badge-user {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-locked {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .badge-active {
+            background: #27ae60;
+            color: white;
+        }
+
+        .location-badges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .location-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-unlock {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-reset-pwd {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .add-user-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .add-user-form .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .add-user-form label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .add-user-form input,
+        .add-user-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .add-user-form .form-actions {
+            grid-column: span 3;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .locations-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .locations-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 13px;
+        }
+
+        .locations-checkboxes label:hover {
+            background: #e9ecef;
+        }
+
+        /* Edit modal uses 2-column grid */
+        #editUserLocations {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 22px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-content .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+
+        .modal-content input[type="password"],
+        .modal-content input[type="text"],
+        .modal-content select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .modal-actions .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal-actions .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-actions .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-actions .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- User Bar -->
+    <div class="user-bar">
+        <div class="user-bar-left">
+            <a href="/" class="btn" style="background: rgba(255,255,255,0.2); color: white; text-decoration: none;">←
+                Back to Cases</a>
+            <span class="location-name">Admin Panel</span>
+        </div>
+        <div class="user-bar-right">
+            <span class="user-info">
+                👤 <span id="userName">Admin</span>
+                <span class="user-role superadmin" id="userRole">superadmin</span>
+            </span>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>⚙️ Admin Panel</h1>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchTab('users')">👥 Users</button>
+            <button class="admin-tab" onclick="switchTab('locations')">📍 Locations</button>
+            <button class="admin-tab" onclick="switchTab('system')">🔧 System</button>
+        </div>
+
+        <!-- Users Section -->
+        <div id="usersSection" class="admin-section active">
+            <h2>User Management</h2>
+
+            <!-- Add User Form -->
+            <div class="add-user-form" id="addUserForm">
+                <div class="form-group">
+                    <label>Employee ID (EID)</label>
+                    <input type="text" id="newEid" placeholder="firstname.lastname" required>
+                </div>
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="newFirstName" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="newLastName" placeholder="Last Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <select id="newPosition" required>
+                        <option value="">-- Select Position --</option>
+                        <option value="ITM">ITM (IT Manager)</option>
+                        <option value="ITS">ITS (IT Supervisor)</option>
+                        <option value="ITO">ITO (IT Officer)</option>
+                        <option value="ITO Trainee">ITO Trainee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="newEmail" placeholder="email@hotel.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="newPhone" placeholder="0XX-XXX-XXXX">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="newPassword" placeholder="Strong password required"
+                        oninput="checkPasswordStrength()">
+                    <div id="passwordStrength" style="margin-top: 5px; font-size: 12px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Retype Password</label>
+                    <input type="password" id="newPasswordConfirm" placeholder="Repeat password"
+                        oninput="checkPasswordMatch()">
+                    <div id="passwordMatch" style="margin-top: 5px; font-size: 12px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="newRole">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="superadmin">Super Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Locations Access</label>
+                    <div class="locations-checkboxes" id="newLocations">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="addUser()">+ Add User</button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>EID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Locations</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="7" class="loading">Loading users...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Locations Section -->
+        <div id="locationsSection" class="admin-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Locations</h2>
+                <button class="btn btn-primary" onclick="showAddLocationModal()">+ New Location</button>
+            </div>
+
+            <!-- Add Location Form -->
+            <div class="add-user-form" id="addLocationForm"
+                style="display: none; grid-template-columns: repeat(3, 1fr);">
+                <div class="form-group">
+                    <label>Location Code</label>
+                    <input type="text" id="newLocCode" placeholder="e.g., HKTXX" maxlength="10"
+                        style="text-transform: lowercase;">
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="newLocName" placeholder="Hotel Full Name">
+                </div>
+                <div class="form-group">
+                    <label>Short Name</label>
+                    <input type="text" id="newLocShortName" placeholder="Short Display Name">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="hideAddLocationForm()">Cancel</button>
+                    <button class="btn btn-primary" onclick="addLocation()">+ Add Location</button>
+                </div>
+            </div>
+
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Short Name</th>
+                        <th>Users Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="locationsTableBody">
+                    <tr>
+                        <td colspan="5" class="loading">Loading locations...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- System Section -->
+        <div id="systemSection" class="admin-section">
+            <h2>System Information</h2>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h3>Database</h3>
+                    <p id="dbInfo">Loading...</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h3>Session</h3>
+                    <p id="sessionInfo">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal" id="resetPwdModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2>Reset Password</h2>
+            <div class="form-group">
+                <label>User: <strong id="resetPwdUser"></strong></label>
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="resetPwdInput" placeholder="Enter new password">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeResetPwdModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmResetPwd()">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>Edit User</h2>
+            <div class="form-group">
+                <label>User: <strong id="editUserEid"></strong></label>
+                <input type="hidden" id="editUserId">
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select id="editUserRole">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Locations Access</label>
+                <div class="locations-checkboxes" id="editUserLocations">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmEditUser()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let allLocations = [];
+        let resetPasswordUserId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdmin();
+        });
+
+        async function initAdmin() {
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                document.getElementById('userName').textContent = currentUser.full_name || currentUser.eid;
+                document.getElementById('userRole').textContent = currentUser.role;
+            }
+
+            await loadLocations();
+            await loadUsers();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Section').classList.add('active');
+
+            if (tab === 'locations') loadLocationsTable();
+            if (tab === 'system') loadSystemInfo();
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+
+            const checks = {
+                length: password.length >= 12,
+                upper: /[A-Z]/.test(password),
+                lower: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+
+            const passed = Object.values(checks).filter(v => v).length;
+
+            let html = '<div style="margin-bottom: 4px;">';
+            html += `<span style="color: ${checks.length ? '#27ae60' : '#e74c3c'};">${checks.length ? '✓' : '✗'} At least 12 characters</span><br>`;
+            html += `<span style="color: ${checks.upper ? '#27ae60' : '#e74c3c'};">${checks.upper ? '✓' : '✗'} Uppercase (A-Z)</span><br>`;
+            html += `<span style="color: ${checks.lower ? '#27ae60' : '#e74c3c'};">${checks.lower ? '✓' : '✗'} Lowercase (a-z)</span><br>`;
+            html += `<span style="color: ${checks.number ? '#27ae60' : '#e74c3c'};">${checks.number ? '✓' : '✗'} Number (0-9)</span><br>`;
+            html += `<span style="color: ${checks.special ? '#27ae60' : '#e74c3c'};">${checks.special ? '✓' : '✗'} Special char (!@#$...)</span>`;
+            html += '</div>';
+
+            if (passed === 5) {
+                html += '<strong style="color: #27ae60;">✓ Strong Password</strong>';
+            } else {
+                html += `<span style="color: #e67e22;">Strength: ${passed}/5</span>`;
+            }
+
+            strengthDiv.innerHTML = html;
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            const password = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('newPasswordConfirm').value;
+            const matchDiv = document.getElementById('passwordMatch');
+
+            if (!confirm) {
+                matchDiv.innerHTML = '';
+                return;
+            }
+
+            if (password === confirm) {
+                matchDiv.innerHTML = '<span style="color: #27ae60;">✓ Passwords match</span>';
+            } else {
+                matchDiv.innerHTML = '<span style="color: #e74c3c;">✗ Passwords do not match</span>';
+            }
+        }
+        async function loadLocations() {
+            try {
+                const response = await fetch('/api/locations');
+                const result = await response.json();
+                if (result.success) {
+                    allLocations = result.data;
+                    renderLocationCheckboxes();
+                }
+            } catch (e) {
+                console.error('Failed to load locations:', e);
+            }
+        }
+
+        function renderLocationCheckboxes() {
+            const container = document.getElementById('newLocations');
+            container.innerHTML = allLocations.map(loc => `
+                <label>
+                    <input type="checkbox" name="newLocation" value="${loc.code}">
+                    ${loc.code.toUpperCase()} - ${loc.short_name}
+                </label>
+            `).join('');
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const result = await response.json();
+                const tbody = document.getElementById('usersTableBody');
+
+                if (result.success && result.data.length > 0) {
+                    // Filter out superadmin users - they should be hidden from regular admins
+                    const displayUsers = result.data.filter(user => user.role !== 'superadmin');
+
+                    if (displayUsers.length > 0) {
+                        tbody.innerHTML = displayUsers.map(user => `
+                            <tr>
+                                <td><strong>${user.eid}</strong></td>
+                                <td>${user.full_name || '-'}</td>
+                                <td>${user.email || '-'}</td>
+                                <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                                <td>
+                                    <div class="location-badges">
+                                        ${(user.locations || []).map(l => `<span class="location-badge">${l}</span>`).join('')}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge ${user.is_locked ? 'badge-locked' : 'badge-active'}">
+                                        ${user.is_locked ? '🔒 Locked' : '✓ Active'}
+                                    </span>
+                                </td>
+                                <td>
+                                    ${user.is_locked ? `<button class="btn-small btn-unlock" onclick="unlockUser(${user.id})">Unlock</button>` : ''}
+                                    <button class="btn-small btn-edit" onclick="showEditUser(${user.id}, '${user.eid}', '${user.role}', ${JSON.stringify(user.locations || []).replace(/"/g, '&quot;')})">Edit</button>
+                                    <button class="btn-small btn-reset-pwd" onclick="showResetPwd(${user.id}, '${user.eid}')">Reset Pwd</button>
+                                    <button class="btn-small btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="7">No users found</td></tr>';
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7">No users found</td></tr>';
+                }
+            } catch (e) {
+                console.error('Failed to load users:', e);
+            }
+        }
+
+        async function addUser() {
+            const eid = document.getElementById('newEid').value.trim();
+            const firstName = document.getElementById('newFirstName').value.trim();
+            const lastName = document.getElementById('newLastName').value.trim();
+            const position = document.getElementById('newPosition').value;
+            const email = document.getElementById('newEmail').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const passwordConfirm = document.getElementById('newPasswordConfirm').value;
+            const role = document.getElementById('newRole').value;
+            const locations = Array.from(document.querySelectorAll('input[name="newLocation"]:checked')).map(cb => cb.value);
+
+            if (!eid || !password) {
+                alert('EID and Password are required');
+                return;
+            }
+
+            if (!firstName || !lastName) {
+                alert('First Name and Last Name are required');
+                return;
+            }
+
+            if (!position) {
+                alert('Please select a position');
+                return;
+            }
+
+            // Strong password validation (12 chars minimum)
+            const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{12,}$/;
+            if (!strongPasswordRegex.test(password)) {
+                alert('Password must be at least 12 characters and contain:\n• Uppercase letter (A-Z)\n• Lowercase letter (a-z)\n• Number (0-9)\n• Special character (!@#$%^&*...)');
+                return;
+            }
+
+            // Check password match
+            if (password !== passwordConfirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eid,
+                        first_name: firstName,
+                        last_name: lastName,
+                        full_name: `${firstName} ${lastName}`,
+                        position,
+                        email,
+                        phone,
+                        password,
+                        role,
+                        locations
+                    })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('User created successfully!');
+                    loadUsers();
+                    // Clear form
+                    document.getElementById('newEid').value = '';
+                    document.getElementById('newFirstName').value = '';
+                    document.getElementById('newLastName').value = '';
+                    document.getElementById('newPosition').value = '';
+                    document.getElementById('newEmail').value = '';
+                    document.getElementById('newPhone').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.querySelectorAll('input[name="newLocation"]').forEach(cb => cb.checked = false);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to create user');
+            }
+        }
+
+        async function unlockUser(userId) {
+            if (!confirm('Unlock this user account?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}/unlock`, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    alert('User unlocked!');
+                    loadUsers();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to unlock user');
+            }
+        }
+
+        function showResetPwd(userId, eid) {
+            resetPasswordUserId = userId;
+            document.getElementById('resetPwdUser').textContent = eid;
+            document.getElementById('resetPwdInput').value = '';
+            document.getElementById('resetPwdModal').classList.add('active');
+        }
+
+        function closeResetPwdModal() {
+            document.getElementById('resetPwdModal').classList.remove('active');
+            resetPasswordUserId = null;
+        }
+
+        async function confirmResetPwd() {
+            const newPassword = document.getElementById('resetPwdInput').value;
+            if (!newPassword || newPassword.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/users/${resetPasswordUserId}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: newPassword })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Password reset successfully!');
+                    closeResetPwdModal();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to reset password');
+            }
+        }
+
+        function showEditUser(userId, eid, role, locations) {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserEid').textContent = eid;
+            document.getElementById('editUserRole').value = role;
+
+            // Render location checkboxes with current selections
+            const container = document.getElementById('editUserLocations');
+            container.innerHTML = allLocations.map(loc => `
+                <label>
+                    <input type="checkbox" name="editLocation" value="${loc.code}" ${locations.includes(loc.code) ? 'checked' : ''}>
+                    ${loc.code.toUpperCase()} - ${loc.short_name}
+                </label>
+            `).join('');
+
+            document.getElementById('editUserModal').classList.add('active');
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').classList.remove('active');
+        }
+
+        async function confirmEditUser() {
+            const userId = document.getElementById('editUserId').value;
+            const role = document.getElementById('editUserRole').value;
+            const locations = Array.from(document.querySelectorAll('input[name="editLocation"]:checked')).map(cb => cb.value);
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role, locations })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('User updated successfully!');
+                    closeEditUserModal();
+                    loadUsers();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to update user');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) {
+                    alert('User deleted!');
+                    loadUsers();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to delete user');
+            }
+        }
+
+        async function loadLocationsTable() {
+            try {
+                const response = await fetch('/api/admin/locations');
+                const result = await response.json();
+                const tbody = document.getElementById('locationsTableBody');
+
+                if (result.success) {
+                    tbody.innerHTML = result.data.map(loc => `
+                        <tr>
+                            <td><strong>${loc.code.toUpperCase()}</strong></td>
+                            <td>${loc.name}</td>
+                            <td>${loc.short_name}</td>
+                            <td>${loc.user_count || 0}</td>
+                            <td>
+                                <button class="btn-small btn-delete" onclick="deleteLocation('${loc.code}')">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load locations:', e);
+            }
+        }
+
+        function showAddLocationModal() {
+            const form = document.getElementById('addLocationForm');
+            form.style.display = 'grid';
+        }
+
+        function hideAddLocationForm() {
+            document.getElementById('addLocationForm').style.display = 'none';
+            document.getElementById('newLocCode').value = '';
+            document.getElementById('newLocName').value = '';
+            document.getElementById('newLocShortName').value = '';
+        }
+
+        async function addLocation() {
+            const code = document.getElementById('newLocCode').value.trim().toLowerCase();
+            const name = document.getElementById('newLocName').value.trim();
+            const shortName = document.getElementById('newLocShortName').value.trim();
+
+            if (!code || !name || !shortName) {
+                alert('All fields are required');
+                return;
+            }
+
+            if (code.length < 3 || code.length > 10) {
+                alert('Location code must be 3-10 characters');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/locations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, name, short_name: shortName })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Location added successfully!');
+                    hideAddLocationForm();
+                    loadLocationsTable();
+                    loadLocations(); // Refresh checkboxes
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to add location');
+            }
+        }
+
+        async function deleteLocation(code) {
+            if (!confirm(`Delete location "${code.toUpperCase()}"? This will also remove all user access to this location.`)) return;
+
+            try {
+                const response = await fetch(`/api/admin/locations/${code}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Location deleted successfully!');
+                    loadLocationsTable();
+                    loadLocations();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to delete location');
+            }
+        }
+
+
+        async function loadSystemInfo() {
+            document.getElementById('dbInfo').textContent = 'Database: MariaDB\nStatus: Connected';
+            document.getElementById('sessionInfo').textContent = `Logged in as: ${currentUser?.eid}\nRole: ${currentUser?.role}`;
+        }
+
+        async function logout() {
+            try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) { }
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+
+</html>

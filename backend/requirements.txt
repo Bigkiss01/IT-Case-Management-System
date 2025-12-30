@@ -1,0 +1,10 @@
+flask
+flask-cors
+flask-login
+sqlalchemy
+pymysql
+pandas
+openpyxl
+cryptography
+bcrypt
+pyjwt

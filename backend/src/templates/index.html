@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Log Management</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <!-- User Bar -->
+    <div class="user-bar">
+        <div class="user-bar-left">
+            <select id="locationSelector" class="location-selector" onchange="changeLocation()">
+                <!-- Locations will be loaded dynamically -->
+            </select>
+            <span class="location-name" id="locationName">Loading...</span>
+        </div>
+        <div class="user-bar-right">
+            <span class="user-info">
+                👤 <span id="userName">User</span>
+                <span class="user-role" id="userRole">user</span>
+            </span>
+            <a href="/admin" id="adminLink" class="btn btn-admin" style="display: none;">⚙️ Admin</a>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Monthly Case Log Management</h1>
+            <div class="header-actions">
+                <label class="btn btn-secondary">
+                    Import Excel
+                    <input type="file" id="importFile" accept=".xlsx,.xls" hidden>
+                </label>
+                <button class="btn btn-secondary" onclick="exportExcel()">Export Excel</button>
+                <button class="btn btn-primary" onclick="openModal()">+ Add Case</button>
+                <button id="deleteAllBtn" class="btn btn-danger-outline" onclick="deleteAllCases()"
+                    style="display: none;">🗑️ Delete All</button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Total Cases</div>
+            </div>
+            <div class="stat-card stat-progress">
+                <div class="stat-value" id="statProgress">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card stat-closed">
+                <div class="stat-value" id="statCompleted">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card stat-month">
+                <div class="stat-value" id="statMonth">0</div>
+                <div class="stat-label">This Month</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+            <input type="text" id="filterSearch" placeholder="Search..." class="filter-input">
+            <select id="filterStatus" class="filter-select">
+                <option value="">All Status</option>
+                <option value="In progress">In progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+            <select id="filterDepartment" class="filter-select">
+                <option value="">All Departments</option>
+            </select>
+            <select id="filterIssues" class="filter-select">
+                <option value="">All Issues</option>
+            </select>
+            <input type="date" id="filterFromDate" class="filter-input" title="From Date">
+            <input type="date" id="filterToDate" class="filter-input" title="To Date">
+            <button class="btn btn-secondary" onclick="loadCases()">Filter</button>
+            <button class="btn btn-light" onclick="clearFilters()">Clear</button>
+            <a href="/report" class="btn btn-report">📊 Report</a>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Date</th>
+                        <th>Issues</th>
+                        <th>Description</th>
+                        <th>Step to Resolve</th>
+                        <th>Opened by</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Resolved by</th>
+                        <th>Remark</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="caseTableBody">
+                    <tr>
+                        <td colspan="11" class="loading">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- See All Button -->
+            <div class="see-all-container" id="seeAllContainer" style="display: none;">
+                <button class="btn btn-primary btn-see-all" onclick="loadAllCases()">
+                    📋 See All Cases (<span id="totalCasesCount">0</span> total)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="caseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Case</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="caseForm" onsubmit="saveCase(event)">
+                <input type="hidden" id="caseId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            No.
+                            <label class="auto-checkbox">
+                                <input type="checkbox" id="autoNo" onchange="toggleAutoNo()">
+                                <span>Auto (New)</span>
+                            </label>
+                        </label>
+                        <input type="text" id="caseNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="caseDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Issues</label>
+                        <select id="caseIssues" required>
+                            <option value="">--- Please Select ---</option>
+                            <option value="Application Issues">Application Issues</option>
+                            <option value="Computer Issues">Computer Issues</option>
+                            <option value="Earn and Redeem Issues">Earn and Redeem Issues</option>
+                            <option value="Internet Connectivity">Internet Connectivity</option>
+                            <option value="IT Service Request">IT Service Request</option>
+                            <option value="Micros Issues">Micros Issues</option>
+                            <option value="Mobile Key Issues">Mobile Key Issues</option>
+                            <option value="OPERA Issues">OPERA Issues</option>
+                            <option value="Password Issues">Password Issues</option>
+                            <option value="Printer Issues">Printer Issues</option>
+                            <option value="Recovery Files">Recovery Files</option>
+                            <option value="TV Issues">TV Issues</option>
+                            <option value="UPS Issues">UPS Issues</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="caseDepartment" required>
+                            <option value="">--- Please Select ---</option>
+                            <option value="A&G">A&G</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Event">Event</option>
+                            <option value="Executive Office">Executive Office</option>
+                            <option value="F&B">F&B</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Front Office">Front Office</option>
+                            <option value="Housekeeping">Housekeeping</option>
+                            <option value="HR">HR</option>
+                            <option value="IT">IT</option>
+                            <option value="Kitchen">Kitchen</option>
+                            <option value="LP">LP</option>
+                            <option value="MarCom">MarCom</option>
+                            <option value="Purchasing">Purchasing</option>
+                            <option value="Recreation">Recreation</option>
+                            <option value="Reservation">Reservation</option>
+                            <option value="Revenue">Revenue</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Spa">Spa</option>
+                            <option value="***Guest">***Guest</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="caseDescription" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Step to Resolve</label>
+                    <textarea id="caseStepToResolve" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Opened by</label>
+                        <input type="text" id="caseOpenedBy">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="caseStatus" required>
+                            <option value="">--- Please Select ---</option>
+                            <option value="In progress">In progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Resolved by</label>
+                        <div class="resolver-chips" id="resolverChips">
+                            <!-- Will be loaded dynamically from API -->
+                            <span class="loading-text">Loading users...</span>
+                        </div>
+                        <input type="hidden" id="caseResolvedBy">
+                    </div>
+                    <div class="form-group">
+                        <label>Remark</label>
+                        <input type="text" id="caseRemark">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <span class="footer-credit">
+                Developed by <strong>Suthiphong Suthonadisonwong</strong>
+                <span class="footer-role">(Big IT Trainee)</span>
+            </span>
+            <span class="footer-divider">|</span>
+            <a href="mailto:Suthiphong.bigg@gmail.com" class="footer-link">Suthiphong.bigg@gmail.com</a>
+            <span class="footer-divider">|</span>
+            <a href="tel:+66959259680" class="footer-link">+66 95 925 9680</a>
+        </div>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

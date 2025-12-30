@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IT Case Log Management</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .login-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .login-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .location-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .attempts-warning {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .attempts-warning.show {
+            display: block;
+        }
+
+        .locked-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .locked-message h3 {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">🔐</div>
+            <h1>IT Case Log Management</h1>
+            <p>Multi-Location System</p>
+            <span class="location-badge">4 Hotels Connected</span>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="attempts-warning" id="attemptsWarning"></div>
+
+        <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="eid">Employee ID (EID)</label>
+                <input type="text" id="eid" name="eid" placeholder="Enter your EID" required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required
+                    autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                Login
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal" id="forgotModal"
+        style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div class="login-container" style="margin:0;">
+            <div class="login-header">
+                <div class="login-logo">🔑</div>
+                <h1 id="forgotTitle">Reset Password</h1>
+                <p id="forgotSubtitle">Enter your email to receive OTP</p>
+            </div>
+
+            <div class="error-message" id="forgotError"></div>
+            <div class="success-message" id="forgotSuccess"
+                style="background:#e8f5e9; color:#2e7d32; padding:12px 16px; border-radius:8px; margin-bottom:20px; display:none;">
+            </div>
+
+            <!-- Step 1: Email -->
+            <div id="step1" class="forgot-step">
+                <div class="form-group">
+                    <label>Your Email</label>
+                    <input type="email" id="forgotEmail" placeholder="Enter your registered email">
+                </div>
+                <button class="login-btn" onclick="requestOTP()">Send OTP</button>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div id="step2" class="forgot-step" style="display:none;">
+                <div class="form-group">
+                    <label>OTP Code</label>
+                    <input type="text" id="otpCode" placeholder="Enter 6-digit OTP" maxlength="6"
+                        style="text-align:center; font-size:24px; letter-spacing:8px;">
+                </div>
+                <button class="login-btn" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+
+            <!-- Step 3: New Password -->
+            <div id="step3" class="forgot-step" style="display:none;">
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" placeholder="Min 6 characters">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+                <button class="login-btn" onclick="resetPassword()">Reset Password</button>
+            </div>
+
+            <div class="login-footer">
+                <a href="#" onclick="closeForgotModal()">← Back to Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let forgotEmail = '';
+        let otpVerified = false;
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const eid = document.getElementById('eid').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const attemptsWarning = document.getElementById('attemptsWarning');
+
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            errorMessage.classList.remove('show');
+            attemptsWarning.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ eid, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Store token
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+
+                    // Redirect to main page
+                    window.location.href = '/';
+                } else {
+                    errorMessage.textContent = result.error;
+                    errorMessage.classList.add('show');
+
+                    if (result.attempts_remaining !== undefined) {
+                        attemptsWarning.textContent = `⚠️ ${result.attempts_remaining} attempts remaining before account lock`;
+                        attemptsWarning.classList.add('show');
+                    }
+
+                    if (result.locked_until) {
+                        attemptsWarning.textContent = `🔒 Account locked until ${result.locked_until}`;
+                        attemptsWarning.classList.add('show');
+                    }
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Connection error. Please try again.';
+                errorMessage.classList.add('show');
+            }
+
+            // Re-enable button
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
+        }
+
+        function showForgotPassword() {
+            document.getElementById('forgotModal').style.display = 'flex';
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('forgotError').style.display = 'none';
+            document.getElementById('forgotSuccess').style.display = 'none';
+            document.getElementById('forgotTitle').textContent = 'Reset Password';
+            document.getElementById('forgotSubtitle').textContent = 'Enter your email to receive OTP';
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').style.display = 'none';
+            forgotEmail = '';
+            otpVerified = false;
+        }
+
+        async function requestOTP() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            if (!email) {
+                showForgotError('Please enter your email');
+                return;
+            }
+
+            forgotEmail = email;
+            document.getElementById('forgotError').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/otp/request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, purpose: 'reset_password' })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                    document.getElementById('forgotTitle').textContent = 'Enter OTP';
+                    document.getElementById('forgotSubtitle').textContent = `OTP sent to ${email}`;
+                    showForgotSuccess('OTP sent! Check your email.');
+                } else {
+                    showForgotError(result.error);
+                }
+            } catch (e) {
+                showForgotError('Failed to send OTP');
+            }
+        }
+
+        async function verifyOTP() {
+            const otp = document.getElementById('otpCode').value.trim();
+            if (!otp || otp.length !== 6) {
+                showForgotError('Please enter 6-digit OTP');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/otp/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail, otp, purpose: 'reset_password' })
+                });
+                const result = await response.json();
+
+                if (result.success && result.verified) {
+                    otpVerified = true;
+                    document.getElementById('step2').style.display = 'none';
+                    document.getElementById('step3').style.display = 'block';
+                    document.getElementById('forgotTitle').textContent = 'New Password';
+                    document.getElementById('forgotSubtitle').textContent = 'Enter your new password';
+                    showForgotSuccess('OTP verified!');
+                } else {
+                    showForgotError(result.error || 'Invalid OTP');
+                }
+            } catch (e) {
+                showForgotError('Failed to verify OTP');
+            }
+        }
+
+        async function resetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const otp = document.getElementById('otpCode').value.trim();
+
+            if (newPassword.length < 6) {
+                showForgotError('Password must be at least 6 characters');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showForgotError('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/otp/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail, otp, new_password: newPassword })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showForgotSuccess('Password reset successfully! You can now login.');
+                    setTimeout(() => {
+                        closeForgotModal();
+                    }, 2000);
+                } else {
+                    showForgotError(result.error);
+                }
+            } catch (e) {
+                showForgotError('Failed to reset password');
+            }
+        }
+
+        function showForgotError(msg) {
+            const el = document.getElementById('forgotError');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('forgotSuccess').style.display = 'none';
+        }
+
+        function showForgotSuccess(msg) {
+            const el = document.getElementById('forgotSuccess');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('forgotError').style.display = 'none';
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Verify token is still valid
+                fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }).then(res => res.json()).then(result => {
+                    if (result.success) {
+                        window.location.href = '/';
+                    } else {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

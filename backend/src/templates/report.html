@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report - Case Log Management</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-title">
+                <a href="/" class="back-link">← Back</a>
+                <h1>📊 Case Log Report</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="exportReportPDF()">Export PDF</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Print</button>
+            </div>
+        </header>
+
+        <!-- Report Filters -->
+        <div class="report-filters">
+            <div class="filter-group">
+                <label>Location:</label>
+                <select id="reportLocation" class="filter-select" onchange="loadReport()">
+                    <!-- Locations will be loaded dynamically -->
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Date Range:</label>
+                <input type="date" id="reportFromDate" class="filter-input">
+                <span>to</span>
+                <input type="date" id="reportToDate" class="filter-input">
+            </div>
+            <div class="filter-group">
+                <label>Department:</label>
+                <select id="reportDepartment" class="filter-select">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>View:</label>
+                <select id="reportView" class="filter-select" onchange="updateChartType()">
+                    <option value="issues">Issues by Type</option>
+                    <option value="department">Issues by Department</option>
+                    <option value="resolver">Issues by Resolver</option>
+                    <option value="trend">Daily Trend</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="loadReport()">Generate Report</button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="report-summary">
+            <div class="summary-card">
+                <div class="summary-icon">📋</div>
+                <div class="summary-content">
+                    <div class="summary-value" id="summaryTotal">0</div>
+                    <div class="summary-label">Total Cases</div>
+                </div>
+            </div>
+            <div class="summary-card completed">
+                <div class="summary-icon">✅</div>
+                <div class="summary-content">
+                    <div class="summary-value" id="summaryCompleted">0</div>
+                    <div class="summary-label">Completed</div>
+                </div>
+            </div>
+            <div class="summary-card pending">
+                <div class="summary-icon">🔄</div>
+                <div class="summary-content">
+                    <div class="summary-value" id="summaryPending">0</div>
+                    <div class="summary-label">In Progress</div>
+                </div>
+            </div>
+            <div class="summary-card rate">
+                <div class="summary-icon">📈</div>
+                <div class="summary-content">
+                    <div class="summary-value" id="summaryRate">0%</div>
+                    <div class="summary-label">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="report-charts">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 id="chartTitle">Issues by Type</h3>
+                    <div class="chart-toggle">
+                        <button class="toggle-btn active" data-type="bar" onclick="setChartType('bar')">Bar</button>
+                        <button class="toggle-btn" data-type="pie" onclick="setChartType('pie')">Pie</button>
+                        <button class="toggle-btn" data-type="doughnut"
+                            onclick="setChartType('doughnut')">Doughnut</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Lists -->
+        <div class="report-lists">
+            <div class="list-card">
+                <h3>🏆 Top Issues</h3>
+                <div class="ranking-list" id="topIssues">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            <div class="list-card">
+                <h3>🏢 Top Departments</h3>
+                <div class="ranking-list" id="topDepartments">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            <div class="list-card">
+                <h3>👤 Top Resolvers</h3>
+                <div class="ranking-list" id="topResolvers">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="report-table">
+            <h3>📊 Detailed Breakdown</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Category</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr>
+                        <td colspan="5" class="loading">Generate a report to see data</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/static/report.js"></script>
+</body>
+
+</html>
