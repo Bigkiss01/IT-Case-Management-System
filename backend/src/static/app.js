@@ -318,7 +318,7 @@ function openModal(caseData = null) {
     form.reset();
     document.getElementById('caseDate').valueAsDate = new Date();
 
-    // Reset all resolver checkboxes
+    // Reset all resolver checkboxes (if they exist)
     document.querySelectorAll('input[name="resolver"]').forEach(cb => cb.checked = false);
 
     if (caseData) {
@@ -333,25 +333,17 @@ function openModal(caseData = null) {
         document.getElementById('caseOpenedBy').value = caseData.opened_by || '';
         document.getElementById('caseStatus').value = caseData.status || '';
         document.getElementById('caseRemark').value = caseData.remark || '';
-
-        // Set resolver checkboxes based on saved value (comma-separated)
-        if (caseData.resolved_by) {
-            const resolvers = caseData.resolved_by.split(',').map(r => r.trim());
-            document.querySelectorAll('input[name="resolver"]').forEach(cb => {
-                if (resolvers.includes(cb.value)) {
-                    cb.checked = true;
-                }
-            });
-        }
+        document.getElementById('caseResolvedBy').value = caseData.resolved_by || '';
     } else {
         title.textContent = 'Add New Case';
         document.getElementById('caseId').value = '';
-        // Auto-set opened_by from logged-in user
-        if (currentUser) {
-            document.getElementById('caseOpenedBy').value = currentUser.position || currentUser.eid;
-        }
-        // Auto-set case_no (will be calculated on save if empty)
         document.getElementById('caseNo').value = '';
+        // Opened by: Empty, user enters reporter name
+        document.getElementById('caseOpenedBy').value = '';
+        // Resolved by: Auto-set from logged-in user eid
+        if (currentUser) {
+            document.getElementById('caseResolvedBy').value = currentUser.eid;
+        }
     }
 
     modal.classList.add('active');
@@ -412,10 +404,8 @@ async function saveCase(event) {
         saveBtn.textContent = 'Saving...';
     }
 
-    // Get selected resolvers from checkboxes
-    const selectedResolvers = Array.from(document.querySelectorAll('input[name="resolver"]:checked'))
-        .map(cb => cb.value);
-    const resolvedBy = selectedResolvers.join(', ');
+    // Get resolved_by from input field
+    const resolvedBy = document.getElementById('caseResolvedBy').value;
 
     const caseId = document.getElementById('caseId').value;
     const data = {
