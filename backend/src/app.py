@@ -19,16 +19,19 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = os.environ.get('SECRET_KEY', 'caselog-secret-key-change-in-production')
 
-# Config DB Connection
-user = os.environ.get('DB_USER', 'case_user')
-password = os.environ.get('DB_PASS', 'case_pass')
-host = os.environ.get('DB_HOST', 'localhost')
-dbname = os.environ.get('DB_NAME', 'caselog_db')
+# Config DB Connection - Support both local and Railway
+user = os.environ.get('MYSQLUSER') or os.environ.get('DB_USER', 'case_user')
+password = os.environ.get('MYSQLPASSWORD') or os.environ.get('DB_PASS', 'case_pass')
+host = os.environ.get('MYSQLHOST') or os.environ.get('DB_HOST', 'localhost')
+port = os.environ.get('MYSQLPORT') or os.environ.get('DB_PORT', '3306')
+dbname = os.environ.get('MYSQLDATABASE') or os.environ.get('DB_NAME', 'caselog_db')
 
-# Wait for DB to be ready
-time.sleep(5)
+# Wait for DB to be ready (shorter wait on Railway)
+wait_time = int(os.environ.get('DB_WAIT', '5'))
+if wait_time > 0:
+    time.sleep(wait_time)
 
-db_str = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
+db_str = f"mysql+pymysql://{user}:{password}@{host}:{port}/{dbname}"
 engine = create_engine(db_str)
 
 # Current location for API calls (default to hktmb)
