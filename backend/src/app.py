@@ -1090,9 +1090,16 @@ def import_excel():
                     if pd.isna(data['case_date']) or data['case_date'] is None:
                         data['case_date'] = None
                     elif isinstance(data['case_date'], str):
-                        try:
-                            data['case_date'] = datetime.strptime(data['case_date'], '%Y-%m-%d').date()
-                        except:
+                        date_parsed = False
+                        # Try multiple date formats
+                        for fmt in ['%Y-%m-%d', '%d-%b-%y', '%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y']:
+                            try:
+                                data['case_date'] = datetime.strptime(data['case_date'], fmt).date()
+                                date_parsed = True
+                                break
+                            except:
+                                continue
+                        if not date_parsed:
                             data['case_date'] = None
                     elif hasattr(data['case_date'], 'date'):
                         # It's a datetime/Timestamp object
