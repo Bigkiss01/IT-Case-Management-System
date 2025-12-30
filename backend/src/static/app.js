@@ -40,10 +40,16 @@ function initUserInfo() {
             // Show Delete All button only for admins
             const deleteAllBtn = document.getElementById('deleteAllBtn');
             if (deleteAllBtn) deleteAllBtn.style.display = 'inline-block';
+            // Show Import button only for admins
+            const importBtn = document.getElementById('importBtn');
+            if (importBtn) importBtn.style.display = 'inline-block';
         } else {
             // Hide Delete All button for non-admins
             const deleteAllBtn = document.getElementById('deleteAllBtn');
             if (deleteAllBtn) deleteAllBtn.style.display = 'none';
+            // Hide Import button for non-admins
+            const importBtn = document.getElementById('importBtn');
+            if (importBtn) importBtn.style.display = 'none';
         }
 
         // Load location selector
