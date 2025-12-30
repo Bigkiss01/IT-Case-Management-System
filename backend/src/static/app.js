@@ -393,8 +393,21 @@ async function toggleAutoNo() {
 }
 
 // ============ Save Case ============
+let isSaving = false; // Prevent double submit
+
 async function saveCase(event) {
     event.preventDefault();
+
+    // Prevent double submit
+    if (isSaving) return;
+    isSaving = true;
+
+    // Disable save button
+    const saveBtn = event.target.querySelector('button[type="submit"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+    }
 
     // Get selected resolvers from checkboxes
     const selectedResolvers = Array.from(document.querySelectorAll('input[name="resolver"]:checked'))
@@ -429,15 +442,28 @@ async function saveCase(event) {
         const result = await response.json();
 
         if (result.success) {
-            showToast(result.message, 'success');
+            showToast(result.message || 'Case saved successfully', 'success');
             closeModal();
-            loadCases();
-            loadStats();
+            // Reload data in background
+            try {
+                await loadCases();
+                await loadStats();
+            } catch (reloadError) {
+                console.error('Reload error:', reloadError);
+            }
         } else {
-            showToast(result.error, 'error');
+            showToast(result.error || 'Failed to save', 'error');
         }
     } catch (error) {
-        showToast('Failed to save case', 'error');
+        console.error('Save case error:', error);
+        showToast('Failed to save case: ' + error.message, 'error');
+    } finally {
+        // Re-enable button
+        isSaving = false;
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+        }
     }
 }
 
