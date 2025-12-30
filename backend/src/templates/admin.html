@@ -464,10 +464,17 @@
             <h2>Reset Password</h2>
             <div class="form-group">
                 <label>User: <strong id="resetPwdUser"></strong></label>
+                <input type="hidden" id="resetPwdUserId">
             </div>
             <div class="form-group">
                 <label>New Password</label>
                 <input type="password" id="resetPwdInput" placeholder="Enter new password">
+                <small style="color: #666; font-size: 11px;">Min 8 chars, uppercase, lowercase, number, special
+                    char</small>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="resetPwdConfirm" placeholder="Retype new password">
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeResetPwdModal()">Cancel</button>
@@ -842,6 +849,7 @@
             resetPasswordUserId = userId;
             document.getElementById('resetPwdUser').textContent = eid;
             document.getElementById('resetPwdInput').value = '';
+            document.getElementById('resetPwdConfirm').value = '';
             document.getElementById('resetPwdModal').classList.add('active');
         }
 
@@ -852,8 +860,23 @@
 
         async function confirmResetPwd() {
             const newPassword = document.getElementById('resetPwdInput').value;
-            if (!newPassword || newPassword.length < 6) {
-                alert('Password must be at least 6 characters');
+            const confirmPassword = document.getElementById('resetPwdConfirm').value;
+
+            // Validate password strength
+            const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
+
+            if (!newPassword) {
+                alert('Please enter a new password');
+                return;
+            }
+
+            if (!strongPasswordRegex.test(newPassword)) {
+                alert('Password must be at least 8 characters with uppercase, lowercase, number, and special character');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
                 return;
             }
 
