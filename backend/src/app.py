@@ -179,6 +179,29 @@ def api_logout():
     return jsonify({'success': True, 'message': 'Logged out successfully'})
 
 
+@app.route('/api/auth/restore-session', methods=['POST'])
+def restore_session():
+    """Restore session from localStorage token (fixes redirect loop when session expires)"""
+    try:
+        data = request.get_json()
+        token = data.get('token', '')
+        
+        if not token:
+            return jsonify({'success': False, 'error': 'No token provided'})
+        
+        result = decode_token(token)
+        if not result['success']:
+            return jsonify({'success': False, 'error': result['error']})
+        
+        # Set session from token
+        session['token'] = token
+        session['user_id'] = result['data'].get('user_id')
+        
+        return jsonify({'success': True, 'message': 'Session restored'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ============ OTP Routes ============
 
 @app.route('/api/otp/request', methods=['POST'])

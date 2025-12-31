@@ -456,7 +456,15 @@
                     }
                 }).then(res => res.json()).then(result => {
                     if (result.success) {
-                        window.location.href = '/';
+                        // Restore session on server before redirecting
+                        // This fixes redirect loop when session expires but localStorage has valid token
+                        fetch('/api/auth/restore-session', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ token })
+                        }).then(() => {
+                            window.location.href = '/';
+                        });
                     } else {
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
