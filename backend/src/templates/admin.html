@@ -135,22 +135,30 @@
         }
 
         .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
+            padding: 5px 10px;
+            font-size: 11px;
             border-radius: 5px;
             border: none;
             cursor: pointer;
             margin: 2px;
             white-space: nowrap;
+            display: inline-block;
         }
 
         /* Actions column layout */
         .user-table td:last-child {
             vertical-align: middle;
+            min-width: 200px;
         }
 
         .user-table td {
             vertical-align: middle;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
         }
 
         .btn-unlock {
@@ -717,10 +725,12 @@
                                     </span>
                                 </td>
                                 <td>
-                                    ${user.is_locked ? `<button class="btn-small btn-unlock" onclick="unlockUser(${user.id})">Unlock</button>` : ''}
-                                    <button class="btn-small btn-edit" onclick="showEditUser(${user.id}, '${user.eid}', '${user.role}', ${JSON.stringify(user.locations || []).replace(/"/g, '&quot;')})">Edit</button>
-                                    <button class="btn-small btn-reset-pwd" onclick="showResetPwd(${user.id}, '${user.eid}')">Reset Pwd</button>
-                                    <button class="btn-small btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                                    <div class="action-buttons">
+                                        ${user.is_locked ? `<button class="btn-small btn-unlock" onclick="unlockUser(${user.id})">Unlock</button>` : ''}
+                                        <button class="btn-small btn-edit" onclick="showEditUser(${user.id}, '${user.eid}', '${user.role}', ${JSON.stringify(user.locations || []).replace(/"/g, '&quot;')})">Edit</button>
+                                        <button class="btn-small btn-reset-pwd" onclick="showResetPwd(${user.id}, '${user.eid}')">Reset Pwd</button>
+                                        <button class="btn-small btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                                    </div>
                                 </td>
                             </tr>
                         `).join('');

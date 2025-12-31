@@ -619,9 +619,10 @@ def get_admin_locations():
     try:
         with engine.connect() as conn:
             result = conn.execute(text("""
-                SELECT l.code, l.name, l.short_name, COUNT(ul.user_id) as user_count
+                SELECT l.code, l.name, l.short_name, COUNT(u.id) as user_count
                 FROM locations l
                 LEFT JOIN user_locations ul ON l.code = ul.location_code
+                LEFT JOIN users u ON ul.user_id = u.id AND u.role != 'superadmin'
                 GROUP BY l.code
                 ORDER BY l.name
             """))
