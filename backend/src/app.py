@@ -315,8 +315,15 @@ def otp_reset_password():
 
 @app.route('/')
 def index():
-    # Check if logged in
+    # Check if logged in - try session first, then Authorization header
     token = session.get('token')
+    
+    # If no session token, check if there's an Authorization header (from JS redirect)
+    if not token:
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    
     if not token:
         return redirect(url_for('login_page'))
     
@@ -324,13 +331,24 @@ def index():
     if not result['success']:
         session.clear()
         return redirect(url_for('login_page'))
+    
+    # Refresh session if token was from header
+    if 'token' not in session:
+        session['token'] = token
+        session['user_id'] = result['data'].get('user_id')
     
     return render_template('index.html')
 
 @app.route('/report')
 def report():
-    # Check if logged in
+    # Check if logged in - try session first, then Authorization header
     token = session.get('token')
+    
+    if not token:
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    
     if not token:
         return redirect(url_for('login_page'))
     
@@ -338,14 +356,25 @@ def report():
     if not result['success']:
         session.clear()
         return redirect(url_for('login_page'))
+    
+    # Refresh session if token was from header
+    if 'token' not in session:
+        session['token'] = token
+        session['user_id'] = result['data'].get('user_id')
     
     return render_template('report.html')
 
 
 @app.route('/admin')
 def admin_page():
-    # Check if logged in and is admin/superadmin
+    # Check if logged in - try session first, then Authorization header
     token = session.get('token')
+    
+    if not token:
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    
     if not token:
         return redirect(url_for('login_page'))
     
@@ -353,6 +382,11 @@ def admin_page():
     if not result['success']:
         session.clear()
         return redirect(url_for('login_page'))
+    
+    # Refresh session if token was from header
+    if 'token' not in session:
+        session['token'] = token
+        session['user_id'] = result['data'].get('user_id')
     
     # Check role
     if result['data']['role'] not in ['admin', 'superadmin']:
