@@ -133,8 +133,24 @@ def api_login():
         # Successful login - clear failed attempts
         clear_failed_attempts(engine, user['id'])
         
-        # Get user locations
-        locations = get_user_locations(engine, user['id'])
+        # Get user locations - superadmin gets all locations
+        if user['role'] == 'superadmin':
+            with engine.connect() as conn:
+                result = conn.execute(text("""
+                    SELECT code, name, short_name FROM locations ORDER BY name
+                """))
+                locations = []
+                for row in result.fetchall():
+                    locations.append({
+                        'code': row[0],
+                        'name': row[1],
+                        'short_name': row[2],
+                        'can_view': True,
+                        'can_edit': True,
+                        'can_delete': True
+                    })
+        else:
+            locations = get_user_locations(engine, user['id'])
         
         # Generate token
         token = generate_token(user)
