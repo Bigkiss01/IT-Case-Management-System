@@ -27,3 +27,18 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Virtual Environment
+.venv/
+
+# Data exports (may contain sensitive information)
+*.xlsx
+*.csv
+exports/
+
+# Backup files
+*.sql
+!database/init/*.sql
+
+# Local config overrides
+*.local

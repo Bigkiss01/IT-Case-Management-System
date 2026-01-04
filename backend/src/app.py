@@ -14,6 +14,7 @@ from auth import (
     check_location_permission
 )
 from email_utils import generate_otp, send_otp_email
+from backup import init_backup_scheduler, run_backup
 
 app = Flask(__name__)
 CORS(app)
@@ -1445,6 +1446,24 @@ def get_locations():
         return jsonify({'success': True, 'data': locations})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ============ Backup API ============
+
+@app.route('/api/admin/backup', methods=['POST'])
+@admin_required
+def manual_backup():
+    """Manually trigger a database backup (admin only)"""
+    # Only superadmin can trigger manual backup
+    if request.current_user.get('role') != 'superadmin':
+        return jsonify({'success': False, 'error': 'Superadmin access required'}), 403
+    
+    success, message = run_backup()
+    return jsonify({'success': success, 'message': message})
+
+
+# Initialize backup scheduler
+init_backup_scheduler(app)
 
 
 if __name__ == '__main__':

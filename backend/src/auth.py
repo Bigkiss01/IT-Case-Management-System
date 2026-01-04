@@ -3,6 +3,7 @@ Authentication Module for Case Log Management System
 Handles login, logout, password hashing, JWT tokens, and account lockout
 """
 
+import os
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -10,8 +11,8 @@ from functools import wraps
 from flask import request, jsonify, session
 from sqlalchemy import text
 
-# JWT Secret Key (should be in environment variable in production)
-JWT_SECRET = 'caselog-secret-key-change-in-production'
+# JWT Secret Key (loaded from environment variable for security)
+JWT_SECRET = os.environ.get('JWT_SECRET', 'caselog-secret-key-change-in-production')
 JWT_EXPIRY_HOURS = 24
 
 # Account lockout settings
